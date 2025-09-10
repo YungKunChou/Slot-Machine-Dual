@@ -326,8 +326,11 @@
             border-right-color: rgba(255,0,60,0.4);
         }
         .theme-rog .reel-item {
-            color: #eee;
+            color: #E0E0E0;
             border-bottom-color: rgba(255,0,60,0.4);
+        }
+        .theme-rog .list-item span {
+            color: #E0E0E0;
         }
         .theme-rog .slot-window::before {
              background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
@@ -351,9 +354,15 @@
             <p class="text-lg mt-2 text-gray-500">China Motor Company . 生管部</p>
         </header>
         
-        <div id="theme-switcher" class="flex justify-center gap-4 mb-8">
-            <button data-theme="default" class="btn btn-secondary theme-btn">中川政七風格</button>
-            <button data-theme="rog" class="btn btn-secondary theme-btn">ASUS ROG 風格</button>
+        <div class="relative flex justify-center items-center mb-8">
+            <div id="theme-switcher" class="flex justify-center gap-4">
+                <button data-theme="default" class="btn btn-secondary theme-btn">中川政七風格</button>
+                <button data-theme="rog" class="btn btn-secondary theme-btn">ASUS ROG 風格</button>
+            </div>
+            <div id="youtube-player-controls" class="absolute right-0 flex items-center gap-2">
+                <button id="toggle-music-btn" class="btn btn-secondary text-sm">🔇 開啟背景音樂</button>
+                <div id="youtube-player" class="w-0 h-0 overflow-hidden"></div>
+            </div>
         </div>
 
         <div id="prize-management" class="section-container">
@@ -371,10 +380,6 @@
                     <div id="quantity-list" class="list-item mb-4"></div>
                     <button id="add-quantity-btn" class="btn btn-primary">＋ 新增數量</button>
                 </div>
-            </div>
-             <div id="youtube-player-controls" class="flex items-center gap-2 mt-8 border-t pt-6">
-                <button id="toggle-music-btn" class="btn btn-secondary text-sm">🔇 開啟背景音樂</button>
-                <div id="youtube-player" class="w-0 h-0 overflow-hidden"></div>
             </div>
         </div>
 
@@ -417,7 +422,7 @@
                 <div class="grid grid-cols-3 font-bold p-4 bg-gray-100">
                     <div>得獎人</div>
                     <div>抽中獎項</div>
-                    <div>數量</div>
+                    <div>数量</div>
                 </div>
                 <div id="winners-table" class="max-h-96 overflow-y-auto"></div>
             </div>
@@ -457,8 +462,8 @@
                 { name: '1' },
                 { name: '2' },
                 { name: '3' },
-                { name: '4' },
-                { name: '5' }
+                { name: '1' },
+                { name: '2' }
             ];
 
             let winners = [];
@@ -466,8 +471,8 @@
             let currentParticipant = null;
 
             const reelStates = {
-                prize: { isSpinning: false, isStopping: false, spinEndTimeout: null, finalResult: null },
-                quantity: { isSpinning: false, isStopping: false, spinEndTimeout: null, finalResult: null }
+                prize: { isSpinning: false, isStopping: false, spinEndTimeout: null, finalResult: null, hasBeenSpun: false },
+                quantity: { isSpinning: false, isStopping: false, spinEndTimeout: null, finalResult: null, hasBeenSpun: false }
             };
             
             // --- DOM 元素 ---
@@ -636,6 +641,8 @@
                     return;
                 }
                 currentParticipant = name;
+                reelStates.prize.hasBeenSpun = false;
+                reelStates.quantity.hasBeenSpun = false;
                 drawStatus.textContent = `你好, ${name}！請拉動拉桿開始！`;
                 participantNameInput.disabled = true;
             });
@@ -662,6 +669,7 @@
             function finalizeSpin(type, wonResult) {
                 const state = reelStates[type];
                 state.finalResult = wonResult;
+                state.hasBeenSpun = true; // BUG FIX: Lock the reel after it stops.
                 
                 if (reelStates.prize.finalResult !== null && reelStates.quantity.finalResult !== null) {
                     slotWindow.classList.add('winner-flash');
@@ -699,6 +707,7 @@
                 let wonResult;
 
                 if (isAuto) {
+                    // BUG FIX: For auto-stop, randomly select the result first.
                     const dataList = type === 'prize' ? prizes : quantities;
                     const randomIndex = Math.floor(Math.random() * dataList.length);
                     wonResult = dataList[randomIndex].name;
@@ -745,6 +754,10 @@
             
             function handleSpin(type) {
                 const state = reelStates[type];
+                 if (state.hasBeenSpun) {
+                    drawStatus.textContent = `這個滾輪您已經抽過了喔！`;
+                    return;
+                }
                 if (state.isSpinning && !state.isStopping) {
                     startSlowingDown(type, false);
                     return;
@@ -774,7 +787,7 @@
                 reelEl.style.transform = 'translateY(0px)';
                 void reelEl.offsetWidth;
 
-                const spinDuration = 6000 + Math.random() * 1000; // 6-7 seconds total
+                const spinDuration = 6000 + Math.random() * 2000; // 6-8 seconds total
                 const wonResult = dataList[Math.floor(Math.random() * dataList.length)].name;
                 
                 const reelItems = Array.from(reelEl.querySelectorAll('.reel-item'));
@@ -832,4 +845,7 @@
     <script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
+
+
+
 
