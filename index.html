@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>分享AI🤩玩拉霸(雙渦輪增強版)</title>
+    <title>雙滾輪互動抽獎活動</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -293,69 +293,32 @@
         }
         .theme-rog .section-container {
             background-color: rgba(26, 26, 30, 0.85);
-            border-radius: 4px;
             border: 1px solid #ff003c;
             box-shadow: 0 0 15px rgba(255, 0, 60, 0.3), inset 0 0 10px rgba(255, 0, 60, 0.2);
-            backdrop-filter: blur(5px);
         }
         .theme-rog header h1, .theme-rog .modal-content h3 {
             color: #FFF;
             text-shadow: 0 0 5px #ff003c, 0 0 10px #ff003c, 0 0 15px #ff003c;
         }
-        .theme-rog header p {
-            color: #aaa;
-            letter-spacing: 2px;
-        }
         .theme-rog h2, .theme-rog h3 {
             color: #ff003c;
             border-bottom-color: #ff003c;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px rgba(255, 0, 60, 0.7);
         }
         .theme-rog #prize-management h3 {
             font-family: 'Noto Sans JP', sans-serif;
             text-transform: none;
             letter-spacing: normal;
         }
-        .theme-rog .btn {
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            text-transform: uppercase;
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
-        }
         .theme-rog .btn-primary {
             background: linear-gradient(45deg, #e60032, #ff4c6b);
-            color: white;
-            border: 1px solid #ff4c6b;
         }
         .theme-rog .btn-primary:hover {
             background: linear-gradient(45deg, #ff4c6b, #e60032);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.6), 0 0 10px #ff4c6b;
-        }
-        .theme-rog .btn-secondary {
-            background-color: #333;
-            color: #E0E0E0;
-            border: 1px solid #555;
-        }
-        .theme-rog .btn-secondary:hover {
-            background-color: #444;
-            border-color: #ff4c6b;
-        }
-        .theme-rog .btn-danger {
-            background: linear-gradient(45deg, #e60032, #ff4c6b);
-            color: white;
-            border: 1px solid #ff4c6b;
-        }
-        .theme-rog .btn-danger:hover {
-            background: linear-gradient(45deg, #ff4c6b, #e60032);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.6), 0 0 10px #ff4c6b;
         }
         .theme-rog .input-field {
             background-color: #1a1a1a;
             border: 1px solid #555;
             color: #E0E0E0;
-            border-radius: 4px;
         }
         .theme-rog .input-field:focus {
             border-color: #ff003c;
@@ -405,6 +368,15 @@
             background: linear-gradient(45deg, #e60032, #ff4c6b);
             border: 1px solid #ff4c6b;
             color: white;
+        }
+        .theme-rog .btn-danger {
+            background: linear-gradient(45deg, #e60032, #ff4c6b);
+            color: white;
+            border: 1px solid #ff4c6b;
+        }
+        .theme-rog .btn-danger:hover {
+            background: linear-gradient(45deg, #ff4c6b, #e60032);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6), 0 0 10px #ff4c6b;
         }
     </style>
 </head>
@@ -618,7 +590,8 @@
                     return;
                 }
                 const shuffledPrizes = [...prizes].sort(() => Math.random() - 0.5);
-                const displayItems = Array(5).fill(shuffledPrizes).flat();
+                const repeatCount = Math.max(10, Math.ceil(100 / prizes.length));
+                const displayItems = Array(repeatCount).fill(shuffledPrizes).flat();
                 prizeReel.innerHTML = displayItems.map(prize => `
                     <div class="reel-item" data-name="${prize.name}">
                         ${getPrizeIcon(prize.name)}<span>${prize.name}</span>
@@ -627,7 +600,8 @@
             
             function renderQuantityReel() {
                 const shuffledQuantities = [...quantities].sort(() => Math.random() - 0.5);
-                const displayItems = Array(5).fill(shuffledQuantities).flat();
+                const repeatCount = Math.max(10, Math.ceil(100 / quantities.length));
+                const displayItems = Array(repeatCount).fill(shuffledQuantities).flat();
                 quantityReel.innerHTML = displayItems.map(q => `<div class="reel-item quantity-item" data-name="${q.name}">${q.name}</div>`).join('');
             }
 
@@ -752,7 +726,7 @@
                 const state = reelStates[type];
                 if (state.isStopping) return;
                 state.isStopping = true;
-                
+
                 const leverEl = type === 'prize' ? leverLeft : leverRight;
                 if (!isAuto) {
                     leverEl.classList.remove('pulled');
@@ -784,7 +758,7 @@
                 const dataList = type === 'prize' ? prizes : quantities;
                 const basePoolSize = dataList.length;
                 let finalTargetIndex = -1;
-                const searchStartIndex = basePoolSize * 3 + Math.floor(Math.random() * basePoolSize);
+                const searchStartIndex = currentItemIndex + Math.ceil(basePoolSize / 2);
                 
                 for(let i = searchStartIndex; i < reelItems.length; i++) {
                     if (reelItems[i] && reelItems[i].dataset.name === wonResult) {
@@ -793,8 +767,7 @@
                     }
                 }
                 if (finalTargetIndex === -1) {
-                    const additionalScroll = isAuto ? 0 : Math.floor(Math.random() * 11) + 5;
-                    finalTargetIndex = currentItemIndex + additionalScroll;
+                    finalTargetIndex = currentItemIndex + (isAuto ? basePoolSize : Math.floor(Math.random() * 11) + 5);
                     wonResult = reelItems[finalTargetIndex].dataset.name;
                 }
 
@@ -811,11 +784,8 @@
                 if(isAuto){
                      setTimeout(() => leverEl.classList.remove('pulled'), stopDuration - 400);
                 }
-                
-                const onTransitionEnd = () => {
-                    finalizeSpin(type, wonResult);
-                };
-                reelEl.addEventListener('transitionend', onTransitionEnd, { once: true });
+
+                reelEl.addEventListener('transitionend', () => finalizeSpin(type, wonResult), { once: true });
             }
             
             function handleSpin(type) {
@@ -853,36 +823,15 @@
                 reelEl.style.transform = 'translateY(0px)';
                 void reelEl.offsetWidth;
 
-                const spinDuration = 6000 + Math.random() * 2000;
-                const wonResult = dataList[Math.floor(Math.random() * dataList.length)].name;
-                
-                const reelItems = Array.from(reelEl.querySelectorAll('.reel-item'));
-                const itemHeight = reelItems[0].offsetHeight;
-                const windowHeight = reelEl.parentElement.offsetHeight;
-                let finalTargetIndex = -1;
-                const basePoolSize = dataList.length;
-                const searchStartIndex = basePoolSize * 3 + Math.floor(Math.random() * basePoolSize);
-                 for(let i = searchStartIndex; i < reelItems.length; i++) {
-                    if (reelItems[i] && reelItems[i].dataset.name === wonResult) {
-                        finalTargetIndex = i;
-                        break;
-                    }
-                }
-                if(finalTargetIndex === -1) finalTargetIndex = searchStartIndex;
+                const spinDuration = 3000;
+                reelEl.style.transition = `transform ${spinDuration}ms linear`;
+                reelEl.style.transform = `translateY(-${reelEl.scrollHeight * 0.5}px)`;
 
-                const targetPosition = finalTargetIndex * itemHeight;
-                const centeredPosition = targetPosition - (windowHeight / 2) + (itemHeight / 2);
-
-                reelEl.style.transition = `transform ${spinDuration}ms cubic-bezier(0.33, 0, 0, 1)`;
-                reelEl.style.transform = `translateY(-${centeredPosition}px)`;
-
-                const onTransitionEnd = () => {
+                state.spinEndTimeout = setTimeout(() => {
                     if(!state.isStopping) { 
-                        finalizeSpin(type, wonResult);
+                        startSlowingDown(type, true);
                     }
-                };
-                reelEl.addEventListener('transitionend', onTransitionEnd, { once: true });
-                state.spinEndListener = onTransitionEnd;
+                }, spinDuration);
             }
 
             leverLeft.addEventListener('click', () => handleSpin('prize'));
@@ -928,3 +877,4 @@
     <script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
+
