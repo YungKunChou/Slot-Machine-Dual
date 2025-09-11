@@ -590,7 +590,7 @@
                     return;
                 }
                 const shuffledPrizes = [...prizes].sort(() => Math.random() - 0.5);
-                const repeatCount = Math.max(10, Math.ceil(100 / prizes.length));
+                const repeatCount = Math.max(10, Math.ceil(60 / prizes.length));
                 const displayItems = Array(repeatCount).fill(shuffledPrizes).flat();
                 prizeReel.innerHTML = displayItems.map(prize => `
                     <div class="reel-item" data-name="${prize.name}">
@@ -600,7 +600,7 @@
             
             function renderQuantityReel() {
                 const shuffledQuantities = [...quantities].sort(() => Math.random() - 0.5);
-                const repeatCount = Math.max(10, Math.ceil(100 / quantities.length));
+                const repeatCount = Math.max(10, Math.ceil(60 / quantities.length));
                 const displayItems = Array(repeatCount).fill(shuffledQuantities).flat();
                 quantityReel.innerHTML = displayItems.map(q => `<div class="reel-item quantity-item" data-name="${q.name}">${q.name}</div>`).join('');
             }
@@ -877,4 +877,7 @@
     <script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
+
+
+
 
