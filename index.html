@@ -326,11 +326,8 @@
             border-right-color: rgba(255,0,60,0.4);
         }
         .theme-rog .reel-item {
-            color: #E0E0E0;
+            color: #eee;
             border-bottom-color: rgba(255,0,60,0.4);
-        }
-        .theme-rog .list-item span {
-            color: #E0E0E0;
         }
         .theme-rog .slot-window::before {
              background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
@@ -462,8 +459,8 @@
                 { name: '1' },
                 { name: '2' },
                 { name: '3' },
-                { name: '1' },
-                { name: '2' }
+                { name: '2' },
+                { name: '1' }
             ];
 
             let winners = [];
@@ -669,7 +666,7 @@
             function finalizeSpin(type, wonResult) {
                 const state = reelStates[type];
                 state.finalResult = wonResult;
-                state.hasBeenSpun = true; // BUG FIX: Lock the reel after it stops.
+                state.hasBeenSpun = true;
                 
                 if (reelStates.prize.finalResult !== null && reelStates.quantity.finalResult !== null) {
                     slotWindow.classList.add('winner-flash');
@@ -682,7 +679,7 @@
                 
                 checkAndRecordWin();
             }
-
+            
             function startSlowingDown(type, isAuto = false) {
                 const state = reelStates[type];
                 if (state.isStopping) return;
@@ -704,42 +701,18 @@
                 const currentY = matrix.m42;
                 
                 const currentItemIndex = Math.round(Math.abs(currentY) / itemHeight);
-                let wonResult;
-
-                if (isAuto) {
-                    // BUG FIX: For auto-stop, randomly select the result first.
-                    const dataList = type === 'prize' ? prizes : quantities;
-                    const randomIndex = Math.floor(Math.random() * dataList.length);
-                    wonResult = dataList[randomIndex].name;
-                } else {
-                    const additionalScroll = Math.floor(Math.random() * 11) + 5;
-                    const targetIndexInDOM = currentItemIndex + additionalScroll;
-                    const finalTargetIndex = Math.min(targetIndexInDOM, reelItems.length - 1);
-                    wonResult = reelItems[finalTargetIndex].dataset.name;
-                }
-
-                const dataList = type === 'prize' ? prizes : quantities;
-                const basePoolSize = dataList.length;
-                let finalTargetIndex = -1;
-                const searchStartIndex = basePoolSize * 3 + Math.floor(Math.random() * basePoolSize);
                 
-                for(let i = searchStartIndex; i < reelItems.length; i++) {
-                    if (reelItems[i] && reelItems[i].dataset.name === wonResult) {
-                        finalTargetIndex = i;
-                        break;
-                    }
-                }
-                if (finalTargetIndex === -1) {
-                    const additionalScroll = isAuto ? 0 : Math.floor(Math.random() * 11) + 5;
-                    finalTargetIndex = currentItemIndex + additionalScroll;
-                    wonResult = reelItems[finalTargetIndex].dataset.name;
-                }
+                const additionalScroll = Math.floor(Math.random() * 11) + 5;
+                const targetIndexInDOM = currentItemIndex + additionalScroll;
 
+                const finalTargetIndex = Math.min(targetIndexInDOM, reelItems.length - 1);
+                const wonResult = reelItems[finalTargetIndex].dataset.name;
+                
                 const targetPosition = finalTargetIndex * itemHeight;
                 const centeredPosition = targetPosition - (windowHeight / 2) + (itemHeight / 2);
 
                 const stopDuration = isAuto 
-                    ? Math.random() * 2000 + 3000 // 3-5 seconds for auto slowdown
+                    ? Math.random() * 2000 + 3000
                     : 2500;
 
                 reelEl.style.transition = `transform ${stopDuration}ms cubic-bezier(0.23, 1, 0.32, 1)`;
@@ -754,7 +727,7 @@
             
             function handleSpin(type) {
                 const state = reelStates[type];
-                 if (state.hasBeenSpun) {
+                if (state.hasBeenSpun) {
                     drawStatus.textContent = `這個滾輪您已經抽過了喔！`;
                     return;
                 }
@@ -777,9 +750,8 @@
 
                 state.isSpinning = true;
                 state.isStopping = false;
-                state.finalResult = null;
                 (type === 'prize' ? leverLeft : leverRight).classList.add('pulled');
-                drawStatus.textContent = '祝您好運！再次拉動拉桿即可煞車！';
+                drawStatus.textContent = '祝您好運！再次拉動拉桿即可換檔後煞停！';
                 
                 const reelEl = type === 'prize' ? prizeReel : quantityReel;
                 
@@ -787,7 +759,7 @@
                 reelEl.style.transform = 'translateY(0px)';
                 void reelEl.offsetWidth;
 
-                const spinDuration = 6000 + Math.random() * 2000; // 6-8 seconds total
+                const spinDuration = 6000 + Math.random() * 2000;
                 const wonResult = dataList[Math.floor(Math.random() * dataList.length)].name;
                 
                 const reelItems = Array.from(reelEl.querySelectorAll('.reel-item'));
@@ -829,7 +801,7 @@
                 });
                 const link = document.createElement('a');
                 link.setAttribute('href', encodeURI(csvContent));
-                link.setAttribute('download', '雙滾輪得獎名單.csv');
+                link.setAttribute('download', '雙渦輪得獎名單.csv');
                 link.click();
             });
             
@@ -845,7 +817,5 @@
     <script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
-
-
 
 
