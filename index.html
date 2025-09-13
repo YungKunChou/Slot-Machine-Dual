@@ -590,7 +590,7 @@
                     return;
                 }
                 const shuffledPrizes = [...prizes].sort(() => Math.random() - 0.5);
-                const repeatCount = Math.max(10, Math.ceil(60 / prizes.length));
+                const repeatCount = Math.max(10, Math.ceil(70 / prizes.length));
                 const displayItems = Array(repeatCount).fill(shuffledPrizes).flat();
                 prizeReel.innerHTML = displayItems.map(prize => `
                     <div class="reel-item" data-name="${prize.name}">
